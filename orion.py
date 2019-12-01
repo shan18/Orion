@@ -9,6 +9,7 @@ def main(cmd):
     print('Command:', cmd)
     
     if cmd == 'play music':
+        # TODO: YouTube streaming option
         music_dir_path = '/media/shan/Entertainment/Music/Anime/Naruto Music/'
         music_file = random.choice([
             f for f in os.listdir(music_dir_path)
@@ -16,8 +17,10 @@ def main(cmd):
         ])
         subprocess.run(['vlc', os.path.join(music_dir_path, music_file)])
     elif cmd.startswith('search '):
-        pass
+        search_query = '+'.join(cmd.split()[1:])
+        webbrowser.open('http://www.google.com/search?q=%s' % search_query)
     elif cmd.startswith('open '):
+        # TODO: Display error for invalid URLs
         url = cmd.split()[1]
         if not url.startswith('http://'):
             url = 'http://' + url
