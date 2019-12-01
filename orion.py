@@ -2,6 +2,7 @@ import os
 import random
 import argparse
 import subprocess
+import webbrowser
 
 
 def main(cmd):
@@ -16,8 +17,11 @@ def main(cmd):
         subprocess.run(['vlc', os.path.join(music_dir_path, music_file)])
     elif cmd.startswith('search '):
         pass
-    elif cmd.starswith('open '):
-        pass
+    elif cmd.startswith('open '):
+        url = cmd.split()[1]
+        if not url.startswith('http://'):
+            url = 'http://' + url
+        webbrowser.open(url)
     else:
         print('Please enter a valid command.')
 
