@@ -4,6 +4,23 @@ import random
 import argparse
 import subprocess
 import webbrowser
+import speech_recognition as sr
+
+
+def fetch_input(mode):
+    print('\nPlease enter an instruction:')
+    if mode == 'text':
+        instruction = input().lower().strip()
+    elif mode == 'voice':
+        recognizer = sr.Recognizer()
+        mic = sr.Microphone()
+        with mic as source:
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source)
+        instruction = recognizer.recognize_google(audio)
+    instruction = instruction.lower().strip()
+    print('You said:', instruction)
+    return instruction
 
 
 def play_music(music_dir_path, mode):
@@ -31,8 +48,8 @@ def open_url(instruction):
 
 
 def main(args):
-    instruction = input('Please enter an instruction:\n').lower().strip()
     while True:
+        instruction = fetch_input(args.input_mode)
         if instruction == 'play music':
             play_music(args.music_dir, args.music_mode)
         elif instruction.startswith('search '):
@@ -43,12 +60,15 @@ def main(args):
             print('\nBye.')
             sys.exit(0)
         else:
-            print('Please enter a valid instruction.')
-        instruction = input('\nPlease enter the next instruction:\n').lower().strip()
+            print('This is not a valid instruction.')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--input_mode', default='voice', choices=['text', 'voice'],
+        help='Mode of giving instructions to the assistant'
+    )
     parser.add_argument(
         '--music_mode', default='online', choices=['local', 'online'],
         help='Play music locally or from youtube'
