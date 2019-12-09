@@ -56,6 +56,10 @@ def open_url(instruction):
     play_response('Opening %s' % url)
     if not url.startswith('http://'):
         url = 'http://' + url
+    if not '.com' in url:
+        # checked for '.com' as substring because url could be
+        # of the form abc.com/xyz
+        url += '.com'
     webbrowser.open(url)
 
 
