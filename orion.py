@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import argparse
+import requests
 import subprocess
 import webbrowser
 from gtts import gTTS
@@ -56,17 +57,33 @@ def search(instruction):
     webbrowser.open('http://www.google.com/search?q=%s' % search_query)
 
 
+def uri_exists(uri):
+    try:
+        with requests.get(uri, stream=True) as response:
+            try:
+                response.raise_for_status()
+                return True
+            except requests.exceptions.HTTPError:
+                return False
+    except requests.exceptions.ConnectionError:
+        return False
+
+
 def open_url(instruction):
-    # TODO: Display error for invalid URLs
-    url = instruction.split()[1]
-    play_response('Opening %s' % url)
-    if not url.startswith('http://'):
-        url = 'http://' + url
+    url = ''.join(instruction.split()[1:])
+    if not url.startswith('https://'):
+        url = 'https://' + url
     if not '.com' in url:
         # checked for '.com' as substring because url could be
         # of the form abc.com/xyz
         url += '.com'
-    webbrowser.open(url)
+    
+    # URL validation
+    if uri_exists(url):
+        play_response('Opening %s' % url.split('://')[1])
+        webbrowser.open(url)
+    else:
+        play_response('URL %s is invalid. Please try again.' % url.split('://')[1])
 
 
 def main(args):
