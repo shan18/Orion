@@ -1,89 +1,9 @@
-import os
 import sys
-import random
 import argparse
-import requests
-import subprocess
-import webbrowser
-from gtts import gTTS
-import speech_recognition as sr
 
-
-VOICE = True
-
-
-def fetch_input():
-    print('\nPlease enter an instruction:')
-    if VOICE:
-        recognizer = sr.Recognizer()
-        mic = sr.Microphone()
-        with mic as source:
-            recognizer.adjust_for_ambient_noise(source)
-            audio = recognizer.listen(source)
-        instruction = recognizer.recognize_google(audio)
-    else:
-        instruction = input().lower().strip()
-    instruction = instruction.lower().strip()
-    print('You:', instruction)
-    return instruction
-
-
-def play_response(text):
-    if VOICE:
-        audio_obj = gTTS(text=text, lang='en', slow=False)
-        audio_obj.save('orion_response.mp3')
-        os.system('mpg321 orion_response.mp3')
-        os.remove('orion_response.mp3')
-    else:
-        print('Orion:', text)
-
-
-def play_music(music_dir_path, mode):
-    if mode == 'local':
-        play_response('Playing music from your computer')
-        music_file = random.choice([
-            f for f in os.listdir(music_dir_path)
-            if f.endswith('.mp3')
-        ])
-        subprocess.run(['vlc', os.path.join(music_dir_path, music_file)])
-    elif mode == 'online':
-        play_response('Playing music from youtube')
-        webbrowser.open('https://www.youtube.com/watch?v=LEh9F67Z5n8&list=PL3oW2tjiIxvQ60uIjLdo7vrUe4ukSpbKl')
-
-
-def search(instruction):
-    search_query = '+'.join(instruction.split()[1:])
-    play_response('Displaying results for %s from the web' % search_query)
-    webbrowser.open('http://www.google.com/search?q=%s' % search_query)
-
-
-def uri_exists(uri):
-    try:
-        with requests.get(uri, stream=True) as response:
-            try:
-                response.raise_for_status()
-                return True
-            except requests.exceptions.HTTPError:
-                return False
-    except requests.exceptions.ConnectionError:
-        return False
-
-
-def open_url(instruction):
-    url = ''.join(instruction.split()[1:])
-    if not url.startswith('https://'):
-        url = 'https://' + url
-    if not '.com' in url:
-        # checked for '.com' as substring because url could be
-        # of the form abc.com/xyz
-        url += '.com'
-    
-    # URL validation
-    if uri_exists(url):
-        play_response('Opening %s' % url.split('://')[1])
-        webbrowser.open(url)
-    else:
-        play_response('URL %s is invalid. Please try again.' % url.split('://')[1])
+from bot import fetch_input, play_response, disable_voice
+from functions.web import search, open_url
+from functions.music import play_music
 
 
 def main(args):
@@ -120,6 +40,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.text_mode:
-        VOICE = False
+        disable_voice()
 
     main(args)
