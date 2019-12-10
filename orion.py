@@ -8,27 +8,33 @@ from gtts import gTTS
 import speech_recognition as sr
 
 
-def fetch_input(mode):
+VOICE = True
+
+
+def fetch_input():
     print('\nPlease enter an instruction:')
-    if mode == 'text':
-        instruction = input().lower().strip()
-    elif mode == 'voice':
+    if VOICE:
         recognizer = sr.Recognizer()
         mic = sr.Microphone()
         with mic as source:
             recognizer.adjust_for_ambient_noise(source)
             audio = recognizer.listen(source)
         instruction = recognizer.recognize_google(audio)
+    else:
+        instruction = input().lower().strip()
     instruction = instruction.lower().strip()
-    print('You said:', instruction)
+    print('You:', instruction)
     return instruction
 
 
 def play_response(text):
-    audio_obj = gTTS(text=text, lang='en', slow=False)
-    audio_obj.save('orion_response.mp3')
-    os.system('mpg321 orion_response.mp3')
-    os.remove('orion_response.mp3')
+    if VOICE:
+        audio_obj = gTTS(text=text, lang='en', slow=False)
+        audio_obj.save('orion_response.mp3')
+        os.system('mpg321 orion_response.mp3')
+        os.remove('orion_response.mp3')
+    else:
+        print('Orion:', text)
 
 
 def play_music(music_dir_path, mode):
@@ -65,7 +71,7 @@ def open_url(instruction):
 
 def main(args):
     while True:
-        instruction = fetch_input(args.input_mode)
+        instruction = fetch_input()
         if instruction == 'play music':
             play_music(args.music_dir, args.music_mode)
         elif instruction.startswith('search '):
@@ -83,8 +89,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--input_mode', default='voice', choices=['text', 'voice'],
-        help='Mode of giving instructions to the assistant'
+        '--text_mode', action='store_true',
+        help='Switch the assistant to text mode'
     )
     parser.add_argument(
         '--music_mode', default='online', choices=['local', 'online'],
@@ -95,5 +101,8 @@ if __name__ == '__main__':
         help='Directory containing files for playing music. This option is useless if music_mode is online'
     )
     args = parser.parse_args()
+
+    if args.text_mode:
+        VOICE = False
 
     main(args)
