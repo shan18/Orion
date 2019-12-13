@@ -1,17 +1,17 @@
 import webbrowser
 
-from .utils import uri_exists
+from .utils import uri_exists, extract_query
 from bot import play_response
 
 
-def search(instruction):
-    search_query = '+'.join(instruction.split()[1:])
+def search(action_word, input_sentence):
+    search_query = '+'.join(extract_query(action_word, input_sentence).split())
     play_response('Displaying results for %s from the web' % search_query)
     webbrowser.open('http://www.google.com/search?q=%s' % search_query)
 
 
-def open_url(instruction):
-    url = ''.join(instruction.split()[1:])
+def open_url(action_word, input_sentence):
+    url = extract_query(action_word, input_sentence)
     if not url.startswith('https://'):
         url = 'https://' + url
     if not '.com' in url:

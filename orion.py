@@ -8,19 +8,21 @@ from functions.music import play_music
 
 def main(args):
     while True:
-        instruction = fetch_input()
-        if instruction == 'play music':
-            play_music(args.music_dir, args.music_mode)
-        elif instruction.startswith('search '):
-            search(instruction)
-        elif instruction.startswith('open '):
-            open_url(instruction)
-        elif instruction in ['exit', 'quit', 'close']:
-            play_response('Logging out. Goodbye.')
-            print('\nBye.')
-            sys.exit(0)
+        input_data = fetch_input()
+        if input_data:
+            intent = input_data['intent']
+            if intent == 'MUS':
+                play_music(args.music_dir, args.music_mode)
+            elif intent == 'SER':
+                search(input_data['action_word'], input_data['input'])
+            elif intent == 'WEB':
+                open_url(input_data['action_word'], input_data['input'])
+            elif intent == 'OFF':
+                play_response('Logging out. Goodbye.')
+                print('\nBye.')
+                sys.exit(0)
         else:
-            print('This is not a valid instruction.')
+            print('I couldn\'t understand what you just said. Please repeat again.')
 
 
 if __name__ == '__main__':

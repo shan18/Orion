@@ -11,3 +11,7 @@ def uri_exists(uri):
                 return False
     except requests.exceptions.ConnectionError:
         return False
+
+
+def extract_query(action, sentence):
+    return sentence[sentence.find(action) + len(action) + 1:]
