@@ -1,4 +1,6 @@
-# Orion - An Intelligent Voice-Based Assistant
+# Orion - An Intelligent Voice-Based Assistant\
+
+\*project still in progress
 
 ## Installing Requirements
 
